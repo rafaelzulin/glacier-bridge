@@ -1,0 +1,11 @@
+<h1>Glacier Bridge</h1>
+<p>Set your information below</p>
+<div id="form_access_key>">
+  <%= form_tag(aws_start_path, method: :post) do %>
+    <%= label_tag(:access_key_id, "Access Key ID:") %><br />
+    <%= text_field_tag(:access_key_id) %><br />
+    <%= label_tag(:secret_access_key, "Secret Access Key:") %><br />
+    <%= text_field_tag(:secret_access_key) %><br />
+    <%= submit_tag("Start") %>
+</div>
+<% end %>
