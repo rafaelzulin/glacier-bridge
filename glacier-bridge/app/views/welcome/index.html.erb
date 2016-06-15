@@ -1,11 +1,13 @@
 <h1>Glacier Bridge</h1>
 <p>Set your information below</p>
 <div id="form_access_key>">
-  <%= form_tag(aws_start_path, method: :post) do %>
+  <%= form_tag(glacier_access_register_path, method: :post, name: :form_welcome) do %>
     <%= label_tag(:access_key_id, "Access Key ID:") %><br />
-    <%= text_field_tag(:access_key_id) %><br />
+    <%= text_field_tag(:access_key_id, "", required: true) %><br />
     <%= label_tag(:secret_access_key, "Secret Access Key:") %><br />
-    <%= text_field_tag(:secret_access_key) %><br />
+    <%= text_field_tag(:secret_access_key, "", required: true) %><br />
+    <%= label_tag :region, "Region:" %><br />
+    <%= select_tag :region, options_for_select(@regions), prompt: "Select a Region", include_blank: false, required: true %><br />
     <%= submit_tag("Start") %>
+  <% end %>
 </div>
-<% end %>

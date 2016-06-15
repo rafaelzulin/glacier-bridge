@@ -1,0 +1,13 @@
+<h1>Create a new archive</h1>
+
+<div name="form_new_archive">
+  <%= form_tag glacier_upload_archive_path, method: :post, multipart: true do %>
+    <%= label_tag :archive_description, "Archive Description:" %><br />
+    <%= text_field_tag :archive_description %><br />
+    <%= label_tag :vault_name, "Vault:" %><br />
+    <%= select_tag :vault_name, options_for_select(@list_names), include_blank: false, prompt: "Select a Vault" %><br />
+    <%= label_tag :file, "File:" %><br />
+    <%= file_field_tag :file %><br />
+    <%= submit_tag "Upload" %>
+  <% end %>
+</div>
