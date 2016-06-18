@@ -1,11 +1,12 @@
-<h1>List of the vaults</h1>
+<h1 class="h1">List of the vaults</h1>
 
 <div name="vault_menu">
-  <%= link_to "Create Vault", glacier_new_vault_path %>
-  <%= link_to "Upload Archive", glacier_new_archive_path %>
+  <%= link_to "Create Vault", glacier_new_vault_path, class: "btn btn-default" %>
+  <%= link_to "Upload Archive", glacier_new_archive_path, class: "btn btn-default" %>
+  <%= link_to "View Session", glacier_session_memory_path, class: "btn btn-default" %>
 </div>
 <div name="list_of_vaults">
-  <table class="responstable">
+  <table class="table">
     <thead>
       <tr>
         <th>Vault Name</th>
@@ -48,9 +49,9 @@
     </tbody>
   </table>
 
-  <h1> List of Jobs</h1>
+  <h1 class="h1"> List of Jobs</h1>
   <div name="list_of_jobs">
-    <table class="responstable">
+    <table class="table table-bordered">
       <thead>
         <th>ID</th>
         <th>Description</th>

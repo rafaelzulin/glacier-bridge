@@ -10,7 +10,8 @@ Rails.application.routes.draw do
   get 'glacier/inventory_download/:id' => 'glacier#inventory_download', as: :glacier_inventory_download
   get 'glacier/new_archive'
   post 'glacier/upload_archive'
-  post 'glacier/access_register'
+  post 'welcome/access_register'
+  get 'glacier/session_memory'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

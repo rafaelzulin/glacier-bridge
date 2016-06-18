@@ -1,9 +1,10 @@
+<%= link_to "Back", :back, class: "btn btn-default" %>
 <h1>Create a new vault</h1>
 
 <div name="form_new_vault">
   <%= form_tag(glacier_create_vault_path, method: :post) do %>
-    <%= label_tag(:vault_name, "Vault Name:") %><br />
-    <%= text_field_tag(:vault_name) %><br />
-    <%= submit_tag("Start") %>
+    <%= label_tag(:vault_name, "Vault Name", class: "sr-only") %><br />
+    <%= text_field_tag(:vault_name, "", placeholder: "Vault Name", required: true, autofocus: true) %><br />
+    <%= submit_tag("Create", class: "btn btn-lg btn-primary") %>
   <% end %>
 </div>

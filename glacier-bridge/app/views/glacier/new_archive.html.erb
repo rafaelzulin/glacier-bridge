@@ -1,13 +1,13 @@
+<%= link_to "Back", :back, class: "btn btn-default" %>
 <h1>Create a new archive</h1>
-
 <div name="form_new_archive">
   <%= form_tag glacier_upload_archive_path, method: :post, multipart: true do %>
-    <%= label_tag :archive_description, "Archive Description:" %><br />
-    <%= text_field_tag :archive_description %><br />
-    <%= label_tag :vault_name, "Vault:" %><br />
+    <%= label_tag :archive_description, "Archive Description", class: "sr-only" %><br />
+    <%= text_field_tag :archive_description, "", placeholder: "Archive Description", required: true, autofocus: true %><br />
+    <%= label_tag :vault_name, "Vault", class: "sr-only" %><br />
     <%= select_tag :vault_name, options_for_select(@list_names), include_blank: false, prompt: "Select a Vault" %><br />
-    <%= label_tag :file, "File:" %><br />
+    <%= label_tag :file, "File", class: "sr-only" %><br />
     <%= file_field_tag :file %><br />
-    <%= submit_tag "Upload" %>
+    <%= submit_tag "Upload", class: "btn btn-lg btn-primary" %>
   <% end %>
 </div>

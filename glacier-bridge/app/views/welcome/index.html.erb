@@ -1,13 +1,10 @@
-<h1>Glacier Bridge</h1>
-<p>Set your information below</p>
-<div id="form_access_key>">
-  <%= form_tag(glacier_access_register_path, method: :post, name: :form_welcome) do %>
-    <%= label_tag(:access_key_id, "Access Key ID:") %><br />
-    <%= text_field_tag(:access_key_id, "", required: true) %><br />
-    <%= label_tag(:secret_access_key, "Secret Access Key:") %><br />
-    <%= text_field_tag(:secret_access_key, "", required: true) %><br />
-    <%= label_tag :region, "Region:" %><br />
-    <%= select_tag :region, options_for_select(@regions), prompt: "Select a Region", include_blank: false, required: true %><br />
-    <%= submit_tag("Start") %>
+  <%= form_tag(welcome_access_register_path, method: :post, name: :form_welcome, class: "form-signin") do %>
+    <h2 class="form-signin-heading">AWS Credentials</h2>
+    <%= label_tag(:access_key_id, "Access Key ID", class: "sr-only") %>
+    <%= text_field_tag(:access_key_id, "", class: "form-control", placeholder: "Access Key ID", required: true, autofocus: true) %>
+    <%= label_tag(:secret_access_key, "Secret Access Key", class: "sr-only") %>
+    <%= text_field_tag(:secret_access_key, "", class: "form-control", placeholder: "Secret Access Key", required: true) %>
+    <%= label_tag :region, "Region", class: "sr-only" %>
+    <%= select_tag :region, options_for_select(@regions), class: "form-control", prompt: "Select a Region", include_blank: false, required: true %>
+    <%= submit_tag("Start", class: "btn btn-lg btn-primary btn-block") %>
   <% end %>
-</div>

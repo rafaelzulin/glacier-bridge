@@ -1,27 +1,10 @@
 class GlacierController < ApplicationController
+  include GlacierHelper
+  before_filter :validate_credentials
   @@client = nil
 
-  def access_register
-    puts "#{Date.today} [INFO] access_register"
-
-    access_key_id = params["access_key_id"].strip
-    secret_access_key = params["secret_access_key"].strip
-    region = params["region"].strip
-
-    begin
-      raise ActionController::ParameterMissing, "A required parameter is missing" if access_key_id.empty? or secret_access_key.empty? or region.empty?
-
-      conn_hash = { region: region, ssl_verify_peer: false, credentials: Aws::Credentials.new(access_key_id, secret_access_key) } #http_wire_trace: true,
-      glacier_client = Aws::Glacier::Client.new(conn_hash)
-      session[:glacier_client] = glacier_client
-
-      redirect_to glacier_list_vaults_path
-    rescue ActionController::ParameterMissing => each
-      redirect_to :back, notice: e.message
-    rescue Exception => e
-      puts e.message
-      redirect_to :back, notice: e.message
-    end
+  def session_memory
+    @print = Session.instance.print
   end
 
   def list_vaults
@@ -154,14 +137,7 @@ class GlacierController < ApplicationController
 
   private
   def glacier_client
-    puts "#{Date.today} [INFO] glacier_client"
-    if @@client.nil?
-      puts "#{Date.today} [INFO] Initializing @@client"
-      conn_hash = { region: "us-west-2", ssl_verify_peer: false, credentials: Aws::Credentials.new("AKIAJMEB2YZM3K767JAA", "vmGKnGRlx71ISsdAtxq+G9SGsPMiQgzfvGBrmkUb"  ) } #http_wire_trace: true,
-      @@client = Aws::Glacier::Client.new(conn_hash)
-    end
-
-    return @@client
+    Session.instance.recover session[:session_id], key = :glacier_client
   end
 
   def error_handle(exception)
@@ -172,5 +148,16 @@ class GlacierController < ApplicationController
 
   def get_vaults_list
     glacier_client.list_vaults.vault_list
+  end
+
+  def validate_credentials
+    puts "#{Date.today} [INFO] validate_credentials"
+
+    client = Session.instance.recover session[:session_id], :glacier_client
+    if client.nil?
+      redirect_to welcome_index_path
+    else
+      @region = Session.instance.recover session[:session_id], :region_description
+    end
   end
 end
