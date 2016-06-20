@@ -8,6 +8,7 @@ class GlacierController < ApplicationController
   end
 
   def list_vaults
+    #TODO Use logging feature properly
     puts "#{Date.today} [INFO] list_vaults"
     begin
       @vaults_list = get_vaults_list
@@ -80,7 +81,6 @@ class GlacierController < ApplicationController
       vault_arn = params["vault"]
       vault_name = vault_arn[vault_arn.index('/') + 1, vault_arn.length]
       resp = glacier_client.get_job_output({
-        #response_target: "/public",
         account_id: '-',
         vault_name: vault_name,
         job_id: job_id

@@ -22,9 +22,10 @@ class WelcomeController < ApplicationController
 
       glacier_region = GlacierRegions.region_by_value parameters[:region]
       #TODO Transformar a chave glacier_client em constante
-      Session.instance.store session[:session_id], key = :glacier_client, value = glacier_client
-      Session.instance.store session[:session_id], key = :region_description, value = glacier_region.description
-      Session.instance.store session[:session_id], key = :region_value, value = glacier_region.value
+
+      session_store session[:session_id], key = :glacier_client, value = glacier_client
+      session_store session[:session_id], key = :region_description, value = glacier_region.description
+      session_store session[:session_id], key = :region_value, value = glacier_region.value
 
       redirect_to glacier_list_vaults_path
     rescue ActionController::ParameterMissing => e
@@ -34,5 +35,10 @@ class WelcomeController < ApplicationController
       puts e.backtrace
       redirect_to :back, notice: e.message
     end
+  end
+
+  private
+  def session_store session_id, key, value
+    Session.instance.store session_id, key, value
   end
 end

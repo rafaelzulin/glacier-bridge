@@ -7,17 +7,25 @@ class Session
   end
 
   def store session_id, key, value
-    puts "store: #{session_id}, #{key}, #{value}"
+    return if key.nil? or session_id.nil?
+    
     initialize_session session_id
     @session[session_id][key] = value
   end
 
   def recover session_id, key
-    puts "recover: #{session_id}, #{key}"
     initialize_session session_id
     @session[session_id][key]
   end
   #TODO Apagar as sessões antigas
+
+  def print
+    @session.inspect
+  end
+
+  def reset
+    @session = Hash.new
+  end
 
   private
     def initialize_session session_id
