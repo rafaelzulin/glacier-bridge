@@ -7,7 +7,7 @@ class GlacierController < ApplicationController
     @print = Session.instance.print
   end
 
-  #get glacier/list_vaults
+  #get 'glacier/list_vaults'
   def list_vaults
     #TODO Use logging feature properly
     puts "#{Date.today} [INFO] list_vaults"
@@ -18,59 +18,51 @@ class GlacierController < ApplicationController
     end
   end
 
-  #get glacier/list_jobs
+  #get 'glacier/list_jobs'
   def list_jobs
+    puts "#{Date.today} [INFO] list_jobs"
     begin
-      @job_list = Array.new
-      vaults_list = get_vaults_list.each do | describe_vault |
-        @job_list.concat glacier_client.list_jobs(account_id: '-', vault_name: describe_vault.vault_name).job_list
-      end
-      puts @job_list.inspect
+      @job_list = glacier_facade.list_jobs
     rescue Exception => e
       error_handle e
     end
   end
 
+  #get 'glacier/new_vault'
   def new_vault
   end
 
+  #post 'glacier/create_vault/:id', as: :glacier_create_vault
   def create_vault
+    puts "#{Date.today} [INFO] create_vault"
+    #TODO Tratar parametros
     vault_name = params["vault_name"]
     begin
-      resp = glacier_client.create_vault(vault_name: vault_name, account_id: '-')
+      glacier_facade.create_vault vault_name
       redirect_to glacier_list_vaults_path, notice: "New vault was successfully created"
     rescue Exception => e
       error_handle e
     end
   end
 
+  #delete 'glacier/destroy_vault/:id' => 'glacier#destroy_vault', as: :glacier_destroy_vault
   def destroy_vault
     puts "#{Date.today} [INFO] list_vaults"
     begin
-      resp = glacier_client.delete_vault(account_id: '-', vault_name: params["id"])
+      #TODO Tratar parâmetro de entrada
+      glacier_facade.delete_vault params["id"]
       redirect_to glacier_list_vaults_path, notice: "Vault was successfully deleted."
     rescue Exception => e
       error_handle e
     end
   end
 
+  #get 'glacier/inventory_retrieval/:id' => 'glacier#inventory_retrieval', as: :glacier_inventory_retrieval
   def inventory_retrieval
     puts "#{Date.today} [INFO] inventory_retrieval"
     begin
-      vault_name = params["id"]
-      resp = glacier_client.initiate_job({
-        account_id: '-',
-        vault_name: vault_name,
-        job_parameters: {
-            type: "inventory-retrieval",
-            description: "Inventory Retrieval for " + vault_name,
-            format: "JSON",
-            inventory_retrieval_parameters: {
-              end_date: Time.now
-            }
-          }
-        })
-      puts resp.inspect
+      #TODO Tratar parametro
+      glacier_facade.inventory_retrieval params["id"]
       redirect_to glacier_list_vaults_path, notice: "Job for inventory retrieval was successfully created."
     rescue Aws::Glacier::Errors::ResourceNotFoundException => e
       redirect_to glacier_list_vaults_path, notice: e.message
@@ -79,56 +71,51 @@ class GlacierController < ApplicationController
     end
   end
 
+  #get 'glacier/inventory_download/:id' => 'glacier#inventory_download', as: :glacier_inventory_download
   def inventory_download
     puts "#{Date.today} [INFO] inventory_download"
     begin
+      #TODO Tratar parâmetros
       job_id = params["id"]
       vault_arn = params["vault"]
       vault_name = vault_arn[vault_arn.index('/') + 1, vault_arn.length]
-      resp = glacier_client.get_job_output({
-        account_id: '-',
-        vault_name: vault_name,
-        job_id: job_id
-        })
+
+      resp = glacier_facade.inventory_download job_id, vault_name
+
       retorno = ""
-      resp.body.each { |line| retorno = retorno + line }
-      puts retorno
+
+      resp.body.each { |line| retorno = retorno + line } unless resp.body.nil?
       send_data retorno, filename: "inventory.txt", type: "plain/text"
     rescue Aws::Glacier::Errors::BadRequest => e
       error_handle e
     end
   end
 
+  #get 'glacier/new_archive'
   def new_archive
     puts "#{Date.today} [INFO] new_archive"
     begin
       @list_names = Array.new
-      get_vaults_list.each do |vault|
+      glacier_facade.list_vaults.each do |vault|
         @list_names.push vault.vault_name
       end
-      puts @list_names.inspect
     rescue Exception => e
       error_handle e
     end
   end
 
+  #post 'glacier/upload_archive'
   def upload_archive
     puts "#{Date.today} [INFO] upload_archive"
     begin
+      #TODO Tratar parâmetros
       params.require(:archive_description)
       params.require(:vault_name)
       params.require(:file)
 
       archive_description = params[:archive_description]
       vault_name = params[:vault_name]
-      file = params[:file]
-
-      glacier_client.upload_archive({
-        account_id: '-',
-        vault_name: vault_name,
-        archive_description: archive_description,
-        body: file.tempfile
-        })
+      file = params[:file].tempfile
 
       redirect_to glacier_new_archive_path, notice: "Archive was successfully uploaded"
     rescue ActionController::ParameterMissing => e
@@ -140,11 +127,6 @@ class GlacierController < ApplicationController
   end
 
 private
-  #TODO Erase after migration to facade
-  def glacier_client
-    glacier_facade.glacier_client
-  end
-
   def glacier_facade
     Session.instance.recover request.session_options[:id], key = GLACIER_SESSION_KEY
   end
@@ -153,10 +135,6 @@ private
     puts exception.message
     puts exception.backtrace
     redirect_to "/500.html"
-  end
-
-  def get_vaults_list
-    glacier_client.list_vaults.vault_list
   end
 
   #before_filter

@@ -31,7 +31,7 @@
     <tbody>
       <% @job_list.each do | job_description | %>
       <tr>
-        <td><%= job_description.job_id[0..15] %></td>
+        <td><%= job_description.job_id %></td>
         <td><%= job_description.job_description %></td>
         <td><%= job_description.action  %></td>
         <td><%= job_description.archive_id %></td>
