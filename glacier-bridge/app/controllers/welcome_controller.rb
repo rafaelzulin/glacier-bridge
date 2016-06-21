@@ -1,7 +1,8 @@
 class WelcomeController < ApplicationController
   #TODO Mudar método de validação para apllication helper
-  include GlacierHelper
+  include ApplicationHelper
 
+  #get welcome/index
   def index
     all_regions = GlacierRegions.all_regions
 
@@ -11,21 +12,15 @@ class WelcomeController < ApplicationController
     end
   end
 
+  #post welcome/access_register
   def access_register
     puts "#{Date.today} [INFO] access_register"
 
     begin
       parameters = validate_params! :access_key_id, :secret_access_key, :region
-      credentials = Aws::Credentials.new parameters[:access_key_id], parameters[:secret_access_key]
-      #TODO Add logger in the client
-      glacier_client = Aws::Glacier::Client.new(region: parameters[:region], ssl_verify_peer: false, credentials: credentials ) #http_wire_trace: true, logger(Logger)
 
-      glacier_region = GlacierRegions.region_by_value parameters[:region]
-      #TODO Transformar a chave glacier_client em constante
-
-      session_store session[:session_id], key = :glacier_client, value = glacier_client
-      session_store session[:session_id], key = :region_description, value = glacier_region.description
-      session_store session[:session_id], key = :region_value, value = glacier_region.value
+      glacier_facade = GlacierFacade.new parameters[:access_key_id], parameters[:secret_access_key], parameters[:region]
+      session_store request.session_options[:id], key = GLACIER_SESSION_KEY, value = glacier_facade
 
       redirect_to glacier_list_vaults_path
     rescue ActionController::ParameterMissing => e

@@ -36,19 +36,19 @@ class SessionTest < ActiveSupport::TestCase
 
     session_instance.store "SessionId", "key", value = nil
     returned_value = session_instance.recover "SessionId", "key"
-    assert_equal nil, returned_value, "The value returned should be nil"
+    assert_nil returned_value, "The value returned should be nil"
   end
 
   test "Setting a value without a key" do
     session_instance.store "SessionId", nil, "value"
     returned_value = session_instance.recover "SessionId", nil
-    assert_equal nil, returned_value, "The value returned should be nil"
+    assert_nil returned_value, "The value returned should be nil"
   end
 
   test "Setting a key/value pair without a session id" do
     session_instance.store nil, "key", "value"
     returned_value = session_instance.recover nil, "key"
-    assert_equal nil, returned_value, "The value returned should be nil"
+    assert_nil returned_value, "The value returned should be nil"
   end
 
   private

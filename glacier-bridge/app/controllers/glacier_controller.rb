@@ -1,26 +1,31 @@
 class GlacierController < ApplicationController
-  include GlacierHelper
+  include ApplicationHelper
   before_filter :validate_credentials
-  @@client = nil
 
+  #TODO Temporary. Erase this after the tests have been concluded
   def session_memory
     @print = Session.instance.print
   end
 
+  #get glacier/list_vaults
   def list_vaults
     #TODO Use logging feature properly
     puts "#{Date.today} [INFO] list_vaults"
     begin
-      @vaults_list = get_vaults_list
+      @vaults_list = glacier_facade.list_vaults
     rescue Exception => e
       error_handle(e)
     end
+  end
 
+  #get glacier/list_jobs
+  def list_jobs
     begin
       @job_list = Array.new
-      @vaults_list.each do | describe_vault |
+      vaults_list = get_vaults_list.each do | describe_vault |
         @job_list.concat glacier_client.list_jobs(account_id: '-', vault_name: describe_vault.vault_name).job_list
       end
+      puts @job_list.inspect
     rescue Exception => e
       error_handle e
     end
@@ -113,7 +118,6 @@ class GlacierController < ApplicationController
       params.require(:archive_description)
       params.require(:vault_name)
       params.require(:file)
-#      params.permit(:archive_description, :vault_name, :file)
 
       archive_description = params[:archive_description]
       vault_name = params[:vault_name]
@@ -135,9 +139,14 @@ class GlacierController < ApplicationController
     end
   end
 
-  private
+private
+  #TODO Erase after migration to facade
   def glacier_client
-    Session.instance.recover session[:session_id], key = :glacier_client
+    glacier_facade.glacier_client
+  end
+
+  def glacier_facade
+    Session.instance.recover request.session_options[:id], key = GLACIER_SESSION_KEY
   end
 
   def error_handle(exception)
@@ -150,14 +159,14 @@ class GlacierController < ApplicationController
     glacier_client.list_vaults.vault_list
   end
 
+  #before_filter
   def validate_credentials
     puts "#{Date.today} [INFO] validate_credentials"
 
-    client = Session.instance.recover session[:session_id], :glacier_client
-    if client.nil?
+    if glacier_facade.nil?
       redirect_to welcome_index_path
     else
-      @region = Session.instance.recover session[:session_id], :region_description
+      @region = glacier_facade.region_description
     end
   end
 end

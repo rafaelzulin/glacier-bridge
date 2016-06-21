@@ -1,8 +1,11 @@
 Rails.application.routes.draw do
+  #welcome_controller
   get 'welcome/index'
-  post 'glacier/start'
-  post 'glacier/list_vaults'
+  post 'welcome/access_register'
+
+  #glacier_controller
   get 'glacier/list_vaults'
+
   get 'glacier/new_vault'
   post 'glacier/create_vault'
   delete 'glacier/destroy_vault/:id' => 'glacier#destroy_vault', as: :glacier_destroy_vault
@@ -10,8 +13,8 @@ Rails.application.routes.draw do
   get 'glacier/inventory_download/:id' => 'glacier#inventory_download', as: :glacier_inventory_download
   get 'glacier/new_archive'
   post 'glacier/upload_archive'
-  post 'welcome/access_register'
   get 'glacier/session_memory'
+  get 'glacier/list_jobs'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
