@@ -1,6 +1,4 @@
 class GlacierFacade
-  attr_accessor :glacier_client
-
   def initialize access_key_id, secret_access_key, region_value
     @region = GlacierRegions.region_by_value region_value
 
@@ -14,16 +12,49 @@ class GlacierFacade
   end
 
   def list_vaults
-    @glacier_client.list_vaults.vault_list
+    #TODO Colocar paginação quando houverem mais que 'x' elementos
+      @glacier_client.list_vaults.vault_list.collect do | describe_vault |
+        Types::Glacier::DescribeVaultOutput.new vault_name: describe_vault.vault_name,
+          vault_arn: describe_vault.vault_arn,
+          size_in_bytes: describe_vault.size_in_bytes,
+          number_of_archives: describe_vault.number_of_archives,
+          creation_date: describe_vault.creation_date,
+          last_inventory_date: describe_vault.last_inventory_date
+    end
   end
 
   def list_jobs
     #TODO Replace each for collect or similar
-    job_list = Array.new
-    list_vaults.each do | describe_vault |
-      job_list.concat @glacier_client.list_jobs(account_id: '-', vault_name: describe_vault.vault_name).job_list
-    end
-    return job_list
+    #TODO Colocar paginação
+    #TODO Colocar filtro por status
+
+    (list_vaults.collect do | describe_vault |
+       @glacier_client.list_jobs(account_id: '-', vault_name: describe_vault.vault_name).job_list.collect do | job_description |
+        Types::Glacier::JobDescription.new job_id: job_description.job_id,
+          job_description: job_description.job_description,
+          action: job_description.action,
+          archive_id: job_description.archive_id,
+          vault_arn: job_description.vault_arn,
+          creation_date: job_description.creation_date,
+          completed: job_description.completed,
+          status_code: job_description.status_code,
+          status_message: job_description.status_message,
+          archive_size_in_bytes: job_description.archive_size_in_bytes,
+          inventory_size_in_bytes: job_description.inventory_size_in_bytes,
+          sns_topic: job_description.sns_topic,
+          completion_date: job_description.completion_date,
+          sha256_tree_hash: job_description.sha256_tree_hash,
+          archive_sha256_tree_hash: job_description.archive_sha256_tree_hash,
+          retrieval_byte_range: job_description.retrieval_byte_range,
+          inventory_retrieval_parameters: {
+            format: job_description.inventory_retrieval_parameters.format,
+            start_date: job_description.inventory_retrieval_parameters.start_date,
+            end_date: job_description.inventory_retrieval_parameters.end_date,
+            limit: job_description.inventory_retrieval_parameters.limit,
+            marker: job_description.inventory_retrieval_parameters.marker
+          }
+      end
+    end).flatten 1
   end
 
   def create_vault vault_name
@@ -63,5 +94,11 @@ class GlacierFacade
   end
 
   def upload_archive vault_name, archive_description, file
-  end 
+    @glacier_client.upload_archive({
+      account_id: '-',
+      vault_name: vault_name,
+      archive_description: archive_description,
+      body: file.tempfile
+      })
+  end
 end

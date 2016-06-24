@@ -11,19 +11,17 @@
     <thead>
       <tr>
         <th>Vault Name</th>
-        <th>Vault ARN</th>
         <th>Size</th>
         <th>Archives</th>
         <th>Created</th>
         <th>Last Inventory Date</th>
-        <th colspan="3">Options</th>
+        <th colspan="2">Options</th>
       </tr>
     </thead>
     </tbody>
       <% @vaults_list.each do | describe_vault | %>
         <tr>
             <td><%= describe_vault.vault_name %></td>
-            <td><%= describe_vault.vault_arn %></td>
             <td><%= describe_vault.size_in_bytes %></td>
             <td><%= describe_vault.number_of_archives %></td>
             <td><%= describe_vault.creation_date %></td>
@@ -36,7 +34,6 @@
                             data: { confirm: "Are you sure you want to start a inventory retrieval for the vault \"#{describe_vault.vault_name}\"?" }
                         }
                   %></td>
-            <td title="Coming soon" class="action_link">!</td>
             <td><%= link_to 'û',
                       glacier_destroy_vault_path(describe_vault.vault_name),
                       { method: "delete",

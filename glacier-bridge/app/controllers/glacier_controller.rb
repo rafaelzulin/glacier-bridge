@@ -51,7 +51,7 @@ class GlacierController < ApplicationController
     begin
       #TODO Tratar parâmetro de entrada
       glacier_facade.delete_vault params["id"]
-      redirect_to glacier_list_vaults_path, notice: "Vault was successfully deleted."
+      redirect_to glacier_list_vaults_path, notice: "Vault was successfully deleted"
     rescue Exception => e
       error_handle e
     end
@@ -63,7 +63,7 @@ class GlacierController < ApplicationController
     begin
       #TODO Tratar parametro
       glacier_facade.inventory_retrieval params["id"]
-      redirect_to glacier_list_vaults_path, notice: "Job for inventory retrieval was successfully created."
+      redirect_to glacier_list_vaults_path, notice: "Job for inventory retrieval was successfully created"
     rescue Aws::Glacier::Errors::ResourceNotFoundException => e
       redirect_to glacier_list_vaults_path, notice: e.message
     rescue Exception => e
@@ -115,7 +115,9 @@ class GlacierController < ApplicationController
 
       archive_description = params[:archive_description]
       vault_name = params[:vault_name]
-      file = params[:file].tempfile
+      file = params[:file]
+
+      glacier_facade.upload_archive archive_description, vault_name, file
 
       redirect_to glacier_new_archive_path, notice: "Archive was successfully uploaded"
     rescue ActionController::ParameterMissing => e

@@ -4,7 +4,7 @@ class GlacierControllerTest < ActionController::TestCase
   setup do
     request.env["HTTP_REFERER"] = "localhost"
   end
-  
+
   test "should get list_vaults happy day" do
     glacier_facade = glacier_facade_default
 
@@ -16,6 +16,9 @@ class GlacierControllerTest < ActionController::TestCase
 
     get :list_vaults
     assert_response :success
+    assert_template :list_vaults
+    assert_template layout: "layouts/application"
+    assert_equal Array.new, assigns(:vaults_list)
   end
 
   test "should get list_jobs happy day" do
@@ -29,6 +32,9 @@ class GlacierControllerTest < ActionController::TestCase
 
     get :list_jobs
     assert_response :success
+    assert_template :list_jobs
+    assert_template layout: "layouts/application"
+    assert_nil assigns(:vaults_list)
   end
 
   test "should get new_vault happy day" do
@@ -37,6 +43,8 @@ class GlacierControllerTest < ActionController::TestCase
 
     get :new_vault
     assert_response :success
+    assert_template :new_vault
+    assert_template layout: "layouts/application"
   end
 
   test "should get create_vault happy day" do
@@ -50,6 +58,8 @@ class GlacierControllerTest < ActionController::TestCase
 
     post :create_vault
     assert_response :redirect
+    assert_redirected_to glacier_list_vaults_path
+    assert_equal "New vault was successfully created", flash[:notice]
   end
 
   test "should get destroy_vault happy day" do
@@ -62,6 +72,8 @@ class GlacierControllerTest < ActionController::TestCase
 
     delete :destroy_vault, id: "vault_test"
     assert_response :redirect
+    assert_redirected_to glacier_list_vaults_path
+    assert_equal "Vault was successfully deleted", flash[:notice]
   end
 
   test "should get inventory_retrieval happy day" do
@@ -74,6 +86,8 @@ class GlacierControllerTest < ActionController::TestCase
 
     delete :inventory_retrieval, id: "vault_test"
     assert_response :redirect
+    assert_redirected_to glacier_list_vaults_path
+    assert_equal "Job for inventory retrieval was successfully created", flash[:notice]
   end
 
   test "should get inventory_download happy day" do
@@ -100,6 +114,9 @@ class GlacierControllerTest < ActionController::TestCase
 
     get :new_archive
     assert_response :success
+    assert_template :new_archive
+    assert_template layout: "layouts/application"
+    assert_equal Array.new, assigns(:list_names)
   end
 
   test "should get upload_archive happy day" do
@@ -110,8 +127,10 @@ class GlacierControllerTest < ActionController::TestCase
 
     session_store request.session_options[:id], :glacier_facade, glacier_facade
 
-    post :upload_archive, vault_name: "vault_test", archive_description: "archive description", file: String.new
+    post :upload_archive, vault_name: "vault_test", archive_description: "archive description", file: String.new("teste")
     assert_response :redirect
+    assert_redirected_to glacier_new_archive_path
+    assert_equal "Archive was successfully uploaded", flash[:notice]
   end
 
   private
@@ -136,18 +155,6 @@ class GlacierControllerTest < ActionController::TestCase
 
      def session_store session_id, key, value
        Session.instance.store session_id, key, value
-     end
-
-     def access_key_id_default
-       "AKIAJMEB2YZM3K767JAA"
-     end
-
-     def secret_access_key_default
-       "vmGKnGRlx71ISsdAtxq+G9SGsPMiQgzfvGBrmkUb"
-     end
-
-     def region_default
-       "us-west-2"
      end
 
      def job_id_default

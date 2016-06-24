@@ -7,4 +7,15 @@ class ActiveSupport::TestCase
   fixtures :all
 
   # Add more helper methods to be used by all tests here...
+  def region_default
+    "us-west-2"
+  end
+
+  def access_key_id_default
+    "AKIAJMEB2YZM3K767JAA"
+  end
+
+  def secret_access_key_default
+    "vmGKnGRlx71ISsdAtxq+G9SGsPMiQgzfvGBrmkUb"
+  end
 end

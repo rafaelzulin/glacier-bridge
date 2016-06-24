@@ -5,53 +5,36 @@
 <div name="list_of_jobs">
   <table class="table">
     <thead>
-      <th>ID</th>
       <th>Description</th>
       <th>Action</th>
       <th>Archive ID</th>
       <th>Vault ARN</th>
       <th>Creation</th>
-      <th>Completed</th>
       <th>Status</th>
-      <th>Status Message</th>
       <th>Arc Size</th>
       <th>Inv Size</th>
-      <th>SNS</th>
       <th>Completion</th>
-      <th>SHA 256</th>
-      <th>Arc SHA 256</th>
-      <th>Byte Range</th>
       <th>Format</th>
       <th>Start</th>
       <th>End</th>
-      <th>Limit</th>
-      <th>Marker</th>
       <th>Options</th>
     </thead>
     <tbody>
       <% @job_list.each do | job_description | %>
       <tr>
-        <td><%= job_description.job_id %></td>
         <td><%= job_description.job_description %></td>
         <td><%= job_description.action  %></td>
         <td><%= job_description.archive_id %></td>
         <td><%= job_description.vault_arn %></td>
         <td><%= job_description.creation_date %></td>
-        <td><%= job_description.completed %></td>
         <td><%= job_description.status_code %></td>
-        <td><%= job_description.status_message %></td>
         <td><%= job_description.archive_size_in_bytes %></td>
         <td><%= job_description.inventory_size_in_bytes %></td>
-        <td><%= job_description.sns_topic %></td>
         <td><%= job_description.completion_date %></td>
-        <td><%= job_description.sha256_tree_hash %></td>
-        <td><%= job_description.archive_sha256_tree_hash %></td>
-        <td><%= job_description.retrieval_byte_range %></td>
         <td><%= job_description.inventory_retrieval_parameters.format %></td>
         <td><%= job_description.inventory_retrieval_parameters.start_date %></td>
         <td><%= job_description.inventory_retrieval_parameters.end_date %></td>
-        <td><%= job_description.inventory_retrieval_parameters.limit %></td>
-        <td><%= job_description.inventory_retrieval_parameters.marker %></td>
+
         <td><%= link_to "Þ",
                   glacier_inventory_download_path(id: job_description.job_id, vault: job_description.vault_arn),
                   { method: "get",
