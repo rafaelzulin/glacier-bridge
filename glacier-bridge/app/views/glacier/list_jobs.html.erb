@@ -37,10 +37,10 @@
         <td><%= job_description.inventory_retrieval_parameters.start_date %></td>
         <td><%= job_description.inventory_retrieval_parameters.end_date %></td>
 
-        <td><%= link_to "Þ",
+        <td><%= link_to "",
                   glacier_inventory_download_path(id: job_description.job_id, vault: job_description.vault_arn),
                   { method: "get",
-                    class: "action_link",
+                    class: "glyphicon glyphicon-download",
                     title: "Download",
                     data: { confirm: "Are you sure you want to download the inventory?" }
                   }

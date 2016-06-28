@@ -23,13 +23,13 @@ class WelcomeControllerTest < ActionController::TestCase
     post :access_register
     assert_response :redirect
     assert_redirected_to welcome_index_path
-    assert_equal "param is missing or the value is empty: Required parameters are missing: access_key_id secret_access_key region ", flash[:alert]
+    assert_equal "param is missing or the value is empty: Required parameters are missing: access_key_id secret_access_key region", flash[:error]
   end
 
   test "post access_register without access key id" do
     post :access_register, access_key_id: nil, secret_access_key: secret_access_key_default, region: region_default
     assert_response :redirect
     assert_redirected_to welcome_index_path
-    assert_equal "param is missing or the value is empty: Required parameters are missing: access_key_id ", flash[:alert]
+    assert_equal "param is missing or the value is empty: Required parameters are missing: access_key_id", flash[:error]
   end
 end

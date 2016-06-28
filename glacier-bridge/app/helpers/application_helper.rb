@@ -18,7 +18,7 @@ module ApplicationHelper
       fail_params.each do | each |
         missing_params.concat "#{each} "
       end
-      raise ActionController::ParameterMissing, "Required parameters are missing: #{missing_params}"
+      raise ActionController::ParameterMissing, "Required parameters are missing: #{missing_params.strip}"
     end
 
     return ret_hash

@@ -22,7 +22,7 @@ class WelcomeController < ApplicationController
       session_store request.session_options[:id], key = GLACIER_SESSION_KEY, value = glacier_facade
 
       redirect_to glacier_list_vaults_path
-    rescue ParameterMissing => e
+    rescue ActionController::ParameterMissing => e
       redirect_to welcome_index_path, flash: { error: e.message }
     end
   end

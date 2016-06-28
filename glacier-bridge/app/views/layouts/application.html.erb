@@ -23,13 +23,29 @@
       </nav>
     <div class="container">
       <% if ! flash[:success].nil? %>
-        <div name="alert alert-success" class="alert alert-success"><span class="glyphicon glyphicon-ok-circle">teste</span><%= flash[:success] %></div>
+        <div name="alert alert-success" class="alert alert-success">
+          <span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+          <span class="sr-only">Error:</span>
+          <%= flash[:success] %>
+        </div>
       <% elsif ! flash[:notice].nil? %>
-        <div name="alert alert-info" class="alert alert-info"><strong>Info! </strong><%= flash[:notice] %></div>
+        <div name="alert alert-info" class="alert alert-info">
+          <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+          <span class="sr-only">Info:</span>
+          <%= flash[:notice] %>
+        </div>
       <% elsif ! flash[:alert].nil? %>
-        <div name="alert alert-warning" class="alert alert-warning"><strong>Warning! </strong><%= flash[:alert] %></div>
-      <% elsif ! flash[:danger].nil? %>
-        <div name="alert alert-danger" class="alert alert-danger"><strong>Error! </strong><%= flash[:danger] %></div>
+        <div name="alert alert-warning" class="alert alert-warning">
+          <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+          <span class="sr-only">Warning:</span>
+          <%= flash[:alert] %>
+        </div>
+      <% elsif ! flash[:error].nil? %>
+        <div name="alert alert-danger" class="alert alert-danger">
+          <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+          <span class="sr-only">Error:</span>
+          <%= flash[:error] %>
+        </div>
       <% end %>
 
       <%= yield %>

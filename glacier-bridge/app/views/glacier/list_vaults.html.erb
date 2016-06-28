@@ -25,18 +25,18 @@
             <td><%= describe_vault.number_of_archives %></td>
             <td><%= describe_vault.creation_date %></td>
             <td><%= describe_vault.last_inventory_date %></td>
-            <td><%= link_to '4',
+            <td><%= link_to "",
                         glacier_inventory_retrieval_path(describe_vault.vault_name),
                         { method: "get",
-                          class: "action_link",
-                            title: "Inventory",
+                          class: "glyphicon glyphicon-list",
+                            title: "Inventory Retrieval",
                             data: { confirm: "Are you sure you want to start a inventory retrieval for the vault \"#{describe_vault.vault_name}\"?" }
                         }
                   %></td>
-            <td><%= link_to 'û',
+            <td><%= link_to "",
                       glacier_destroy_vault_path(describe_vault.vault_name),
                       { method: "delete",
-                        class: "action_link",
+                        class: "glyphicon glyphicon-remove",
                         title: "Destroy",
                         data: { confirm: "Are you sure you want to destroy the vault \"#{describe_vault.vault_name}\"?" }
                       }

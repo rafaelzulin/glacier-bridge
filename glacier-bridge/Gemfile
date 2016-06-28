@@ -50,3 +50,6 @@ gem 'coffee-script-source', '1.8.0'
 
 # Adding the dependency to aws
 gem 'aws-sdk', '~> 2'
+
+# Bootstrap
+gem 'bootstrap-sass', '~> 3'

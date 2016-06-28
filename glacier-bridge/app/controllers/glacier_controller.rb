@@ -24,9 +24,10 @@ class GlacierController < ApplicationController
   #post 'glacier/create_vault/:id', as: :glacier_create_vault
   def create_vault
     puts "#{Date.today} [INFO] create_vault"
-    parameters = validate_params! :vault_name
+
     begin
-      # puts glacier_facade.create_vault parameters[:vault_name]
+      parameters = validate_params! :vault_name
+      glacier_facade.create_vault parameters[:vault_name]
       redirect_to glacier_list_vaults_path, flash: { success: "New vault was successfully created" }
     rescue ActionController::ParameterMissing => e
       redirect_to glacier_new_vault_path, flash: { error: e.message }

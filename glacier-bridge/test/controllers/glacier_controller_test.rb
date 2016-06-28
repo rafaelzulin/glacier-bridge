@@ -159,15 +159,42 @@ class GlacierControllerTest < ActionController::TestCase
     glacier_facade = glacier_facade_default
 
     def glacier_facade.create_vault vault_name
-      String.new
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    post :create_vault, vault_name: "vault_name"
+    assert_response :redirect
+    assert_redirected_to glacier_list_vaults_path
+    assert_equal "New vault was successfully created", flash[:success]
+  end
+
+  test "should get create_vault without vault name" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.create_vault vault_name
     end
 
     session_store request.session_options[:id], :glacier_facade, glacier_facade
 
     post :create_vault
     assert_response :redirect
-    assert_redirected_to glacier_list_vaults_path
-    assert_equal "New vault was successfully created", flash[:notice]
+    assert_redirected_to glacier_new_vault_path
+    assert_equal "param is missing or the value is empty: Required parameters are missing: vault_name", flash[:error]
+  end
+
+  test "should get create_vault with exception raised" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.create_vault vault_name
+      raise Bridge::Errors::AwsException, "Error on the request"
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    post :create_vault, vault_name: "vault_name"
+    assert_response :redirect
+    assert_redirected_to "/500.html"
   end
 
   test "should get destroy_vault happy day" do
