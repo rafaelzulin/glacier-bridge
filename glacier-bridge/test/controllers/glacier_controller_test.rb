@@ -9,6 +9,31 @@ class GlacierControllerTest < ActionController::TestCase
     glacier_facade = glacier_facade_default
 
     def glacier_facade.list_vaults
+      Array.new.push Bridge::Types::Glacier::DescribeVaultOutput.new(vault_name: "vault_test",
+        vault_arn: "arn:aws:glacier:us-west-2:280517293289:vaults/vault_test",
+        size_in_bytes: 1024,
+        number_of_archives: 2,
+        creation_date: Time.new(2016, 06, 15, 02, 00, 00, "-03:00"),
+        last_inventory_date: Time.new(2016, 06, 20, 17, 15, 00, "-03:00")
+      )
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    get :list_vaults
+    assert_response :success
+    assert_template :list_vaults
+    assert_template layout: layout_default
+    assert_equal 1, assigns(:vaults_list).size
+    assert_select "h1", "List of the vaults"
+    assert_select "table thead tr", 1
+    assert_select "table tbody tr", 1
+  end
+
+  test "should get list_vaults without vaults" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.list_vaults
       Array.new
     end
 
@@ -17,8 +42,25 @@ class GlacierControllerTest < ActionController::TestCase
     get :list_vaults
     assert_response :success
     assert_template :list_vaults
-    assert_template layout: "layouts/application"
-    assert_equal Array.new, assigns(:vaults_list)
+    assert_template layout: layout_default
+    assert_equal 0, assigns(:vaults_list).size
+    assert_select "h1", "List of the vaults"
+    assert_select "table thead tr", 1
+    assert_select "table tbody tr", 0
+  end
+
+  test "should get list_vaults with exception raised" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.list_vaults
+      raise Bridge::Errors::AwsException, "Error on the request"
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    get :list_vaults
+    assert_response :redirect
+    assert_redirected_to "/500.html"
   end
 
   test "should get list_jobs happy day" do
@@ -35,6 +77,20 @@ class GlacierControllerTest < ActionController::TestCase
     assert_template :list_jobs
     assert_template layout: "layouts/application"
     assert_nil assigns(:vaults_list)
+  end
+
+  test "should get list_jobs with exception raised" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.list_jobs
+      raise Bridge::Errors::AwsException, "Error on the request"
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    get :list_jobs
+    assert_response :redirect
+    assert_redirected_to "/500.html"
   end
 
   test "should get new_vault happy day" do

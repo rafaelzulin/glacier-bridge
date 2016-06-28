@@ -4,10 +4,8 @@ class WelcomeController < ApplicationController
 
   #get welcome/index
   def index
-    all_regions = GlacierRegions.all_regions
-
     @regions = Hash.new
-    all_regions.each do | glacier_region |
+    GlacierRegions.all_regions.each do | glacier_region |
       @regions[glacier_region.description] = glacier_region.value
     end
   end
@@ -24,11 +22,7 @@ class WelcomeController < ApplicationController
 
       redirect_to glacier_list_vaults_path
     rescue ActionController::ParameterMissing => e
-      redirect_to :back, notice: e.message
-    rescue Exception => e
-      puts e.message
-      puts e.backtrace
-      redirect_to :back, notice: e.message
+      redirect_to welcome_index_path, alert: e.message
     end
   end
 

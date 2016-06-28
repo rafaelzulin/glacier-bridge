@@ -1,7 +1,7 @@
   <%= form_tag(welcome_access_register_path, method: :post, name: :form_welcome, class: "form-signin") do %>
     <h2 class="form-signin-heading">AWS Credentials</h2>
     <%= label_tag(:access_key_id, "Access Key ID", class: "sr-only") %>
-    <%= text_field_tag(:access_key_id, "", class: "form-control", placeholder: "Access Key ID", required: true, autofocus: true) %>
+    <%= text_field_tag(:access_key_id, "", class: "form-control", placeholder: "Access Key ID", required: true, autofocus: true) %> 
     <%= label_tag(:secret_access_key, "Secret Access Key", class: "sr-only") %>
     <%= text_field_tag(:secret_access_key, "", class: "form-control", placeholder: "Secret Access Key", required: true) %>
     <%= label_tag :region, "Region", class: "sr-only" %>

@@ -22,7 +22,13 @@
         </div>
       </nav>
     <div class="container">
-      <p id="notice"><%= notice %></p>
+      <% if ! flash[:notice].nil? %>
+        <div name="alert-info" class="alert alert-info"><strong>Info!</strong><%= flash[:notice] %></div>
+      <% elsif ! flash[:alert].nil? %>
+        <div name="alert-warning" class="alert alert-warning"><strong>Warning! </strong><%= flash[:alert] %></div>
+      <% elsif ! flash[:danger].nil? %>
+        <div name="alert-danger" class="alert alert-danger"><strong>Error! </strong><%= flash[:danger] %></div>
+      <% end %>
 
       <%= yield %>
 

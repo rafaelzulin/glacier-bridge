@@ -11,26 +11,30 @@ class GlacierFacade
     @region.description
   end
 
+  #TODO Colocar paginação quando houverem mais que 'x' elementos
   def list_vaults
-    #TODO Colocar paginação quando houverem mais que 'x' elementos
+    begin
       @glacier_client.list_vaults.vault_list.collect do | describe_vault |
-        Types::Glacier::DescribeVaultOutput.new vault_name: describe_vault.vault_name,
+        Bridge::Types::Glacier::DescribeVaultOutput.new vault_name: describe_vault.vault_name,
           vault_arn: describe_vault.vault_arn,
           size_in_bytes: describe_vault.size_in_bytes,
           number_of_archives: describe_vault.number_of_archives,
           creation_date: describe_vault.creation_date,
           last_inventory_date: describe_vault.last_inventory_date
+      end
+    rescue Aws::Glacier::Errors::ServiceError => e
+      raise Bridge::Errors::AwsException, e.message
     end
+
   end
 
   def list_jobs
-    #TODO Replace each for collect or similar
     #TODO Colocar paginação
     #TODO Colocar filtro por status
 
     (list_vaults.collect do | describe_vault |
        @glacier_client.list_jobs(account_id: '-', vault_name: describe_vault.vault_name).job_list.collect do | job_description |
-        Types::Glacier::JobDescription.new job_id: job_description.job_id,
+        Bridge::Types::Glacier::JobDescription.new job_id: job_description.job_id,
           job_description: job_description.job_description,
           action: job_description.action,
           archive_id: job_description.archive_id,

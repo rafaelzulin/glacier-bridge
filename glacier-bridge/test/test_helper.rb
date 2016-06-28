@@ -18,4 +18,8 @@ class ActiveSupport::TestCase
   def secret_access_key_default
     "vmGKnGRlx71ISsdAtxq+G9SGsPMiQgzfvGBrmkUb"
   end
+
+  def layout_default
+    "layouts/application"
+  end
 end

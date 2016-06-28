@@ -1,31 +1,25 @@
 class GlacierController < ApplicationController
   include ApplicationHelper
+
   before_filter :validate_credentials
+  rescue_from Bridge::Errors::AwsException, with: :error_handler
 
-  #TODO Temporary. Erase this after the tests have been concluded
-  def session_memory
-    @print = Session.instance.print
-  end
+  #TODO Temporary. Delete this after the tests have been concluded
+  # def session_memory
+  #   @print = Session.instance.print
+  # end
 
+  #TODO Use logging feature properly
   #get 'glacier/list_vaults'
   def list_vaults
-    #TODO Use logging feature properly
-    puts "#{Date.today} [INFO] list_vaults"
-    begin
-      @vaults_list = glacier_facade.list_vaults
-    rescue Exception => e
-      error_handle(e)
-    end
+    puts "#{Time.now} [INFO] list_vaults"
+    @vaults_list = glacier_facade.list_vaults
   end
 
   #get 'glacier/list_jobs'
   def list_jobs
     puts "#{Date.today} [INFO] list_jobs"
-    begin
-      @job_list = glacier_facade.list_jobs
-    rescue Exception => e
-      error_handle e
-    end
+    @job_list = glacier_facade.list_jobs
   end
 
   #get 'glacier/new_vault'
@@ -41,7 +35,7 @@ class GlacierController < ApplicationController
       glacier_facade.create_vault vault_name
       redirect_to glacier_list_vaults_path, notice: "New vault was successfully created"
     rescue Exception => e
-      error_handle e
+      error_handler e
     end
   end
 
@@ -53,7 +47,7 @@ class GlacierController < ApplicationController
       glacier_facade.delete_vault params["id"]
       redirect_to glacier_list_vaults_path, notice: "Vault was successfully deleted"
     rescue Exception => e
-      error_handle e
+      error_handler e
     end
   end
 
@@ -67,7 +61,7 @@ class GlacierController < ApplicationController
     rescue Aws::Glacier::Errors::ResourceNotFoundException => e
       redirect_to glacier_list_vaults_path, notice: e.message
     rescue Exception => e
-      error_handle e
+      error_handler e
     end
   end
 
@@ -87,7 +81,7 @@ class GlacierController < ApplicationController
       resp.body.each { |line| retorno = retorno + line } unless resp.body.nil?
       send_data retorno, filename: "inventory.txt", type: "plain/text"
     rescue Aws::Glacier::Errors::BadRequest => e
-      error_handle e
+      error_handler e
     end
   end
 
@@ -100,7 +94,7 @@ class GlacierController < ApplicationController
         @list_names.push vault.vault_name
       end
     rescue Exception => e
-      error_handle e
+      error_handler e
     end
   end
 
@@ -124,7 +118,7 @@ class GlacierController < ApplicationController
       puts e.message
       redirect_to :back, notice: "A parameter is missing"
     rescue Exception => e
-      error_handle e
+      error_handler e
     end
   end
 
@@ -133,7 +127,7 @@ private
     Session.instance.recover request.session_options[:id], key = GLACIER_SESSION_KEY
   end
 
-  def error_handle(exception)
+  def error_handler(exception)
     puts exception.message
     puts exception.backtrace
     redirect_to "/500.html"

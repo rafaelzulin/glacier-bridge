@@ -16,11 +16,9 @@ class GlacierRegions
 	SYDNEY = self.new "Asia Pacific (Sydney)", "ap-southeast-2"
 
 	def self.all_regions
-		ret_arr = Array.new
-		self.constants.each do | region_name |
-			ret_arr.push GlacierRegions.const_get region_name
+		self.constants.collect do | region_name |
+			 GlacierRegions.const_get region_name
 		end
-		return ret_arr
 	end
 
   def self.region_by_value value
