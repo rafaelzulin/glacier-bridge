@@ -4,8 +4,4 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   GLACIER_SESSION_KEY = :glacier_facade
-
-  def error_handle
-    
-  end
 end

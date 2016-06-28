@@ -22,12 +22,14 @@
         </div>
       </nav>
     <div class="container">
-      <% if ! flash[:notice].nil? %>
-        <div name="alert-info" class="alert alert-info"><strong>Info!</strong><%= flash[:notice] %></div>
+      <% if ! flash[:success].nil? %>
+        <div name="alert alert-success" class="alert alert-success"><span class="glyphicon glyphicon-ok-circle">teste</span><%= flash[:success] %></div>
+      <% elsif ! flash[:notice].nil? %>
+        <div name="alert alert-info" class="alert alert-info"><strong>Info! </strong><%= flash[:notice] %></div>
       <% elsif ! flash[:alert].nil? %>
-        <div name="alert-warning" class="alert alert-warning"><strong>Warning! </strong><%= flash[:alert] %></div>
+        <div name="alert alert-warning" class="alert alert-warning"><strong>Warning! </strong><%= flash[:alert] %></div>
       <% elsif ! flash[:danger].nil? %>
-        <div name="alert-danger" class="alert alert-danger"><strong>Error! </strong><%= flash[:danger] %></div>
+        <div name="alert alert-danger" class="alert alert-danger"><strong>Error! </strong><%= flash[:danger] %></div>
       <% end %>
 
       <%= yield %>

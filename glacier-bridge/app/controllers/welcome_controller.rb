@@ -1,11 +1,12 @@
 class WelcomeController < ApplicationController
   #TODO Mudar método de validação para apllication helper
   include ApplicationHelper
+  include Enums
 
   #get welcome/index
   def index
     @regions = Hash.new
-    GlacierRegions.all_regions.each do | glacier_region |
+    GlacierRegions.values.each do | glacier_region |
       @regions[glacier_region.description] = glacier_region.value
     end
   end
@@ -21,8 +22,8 @@ class WelcomeController < ApplicationController
       session_store request.session_options[:id], key = GLACIER_SESSION_KEY, value = glacier_facade
 
       redirect_to glacier_list_vaults_path
-    rescue ActionController::ParameterMissing => e
-      redirect_to welcome_index_path, alert: e.message
+    rescue ParameterMissing => e
+      redirect_to welcome_index_path, flash: { error: e.message }
     end
   end
 

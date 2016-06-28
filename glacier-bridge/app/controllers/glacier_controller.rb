@@ -4,11 +4,6 @@ class GlacierController < ApplicationController
   before_filter :validate_credentials
   rescue_from Bridge::Errors::AwsException, with: :error_handler
 
-  #TODO Temporary. Delete this after the tests have been concluded
-  # def session_memory
-  #   @print = Session.instance.print
-  # end
-
   #TODO Use logging feature properly
   #get 'glacier/list_vaults'
   def list_vaults
@@ -29,13 +24,12 @@ class GlacierController < ApplicationController
   #post 'glacier/create_vault/:id', as: :glacier_create_vault
   def create_vault
     puts "#{Date.today} [INFO] create_vault"
-    #TODO Tratar parametros
-    vault_name = params["vault_name"]
+    parameters = validate_params! :vault_name
     begin
-      glacier_facade.create_vault vault_name
-      redirect_to glacier_list_vaults_path, notice: "New vault was successfully created"
-    rescue Exception => e
-      error_handler e
+      # puts glacier_facade.create_vault parameters[:vault_name]
+      redirect_to glacier_list_vaults_path, flash: { success: "New vault was successfully created" }
+    rescue ActionController::ParameterMissing => e
+      redirect_to glacier_new_vault_path, flash: { error: e.message }
     end
   end
 

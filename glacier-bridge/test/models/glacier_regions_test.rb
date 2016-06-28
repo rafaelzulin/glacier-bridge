@@ -12,7 +12,7 @@ class GlacierRegionsTest < ActiveSupport::TestCase
   end
 
   test "Validates methods wich returns all regions as an array" do
-    regions = GlacierRegions.all_regions
+    regions = GlacierRegions.values
     assert_equal 8, regions.length, "Number of regions are incorrect"
     regions.each do |region|
       assert_kind_of GlacierRegions, region, "The type of the object should be GlacierRegions"
@@ -20,6 +20,6 @@ class GlacierRegionsTest < ActiveSupport::TestCase
   end
 
   test "Validates getting a regin by value" do
-    assert_equal GlacierRegions::OREGON, GlacierRegions.region_by_value("us-west-2"), "The region returner is invalid"
+    assert_equal GlacierRegions::OREGON, GlacierRegions.value_of("us-west-2"), "The region returner is invalid"
   end
 end

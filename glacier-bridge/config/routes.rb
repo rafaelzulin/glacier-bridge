@@ -14,9 +14,6 @@ Rails.application.routes.draw do
   post 'glacier/upload_archive'
   get 'glacier/list_jobs'
 
-  #TODO Delete this route. Is just for test
-  get 'glacier/session_memory'
-
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

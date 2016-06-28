@@ -1,4 +1,5 @@
 require 'test_helper'
+include Enums
 
 class GlacierControllerTest < ActionController::TestCase
   setup do
@@ -25,7 +26,7 @@ class GlacierControllerTest < ActionController::TestCase
     assert_template :list_vaults
     assert_template layout: layout_default
     assert_equal 1, assigns(:vaults_list).size
-    assert_select "h1", "List of the vaults"
+    assert_select "h1", "List of vaults"
     assert_select "table thead tr", 1
     assert_select "table tbody tr", 1
   end
@@ -44,7 +45,7 @@ class GlacierControllerTest < ActionController::TestCase
     assert_template :list_vaults
     assert_template layout: layout_default
     assert_equal 0, assigns(:vaults_list).size
-    assert_select "h1", "List of the vaults"
+    assert_select "h1", "List of vaults"
     assert_select "table thead tr", 1
     assert_select "table tbody tr", 0
   end
@@ -67,6 +68,47 @@ class GlacierControllerTest < ActionController::TestCase
     glacier_facade = glacier_facade_default
 
     def glacier_facade.list_jobs
+      Array.new.push Bridge::Types::Glacier::JobDescription.new(job_id: "6C-oiL2VsIWbyTLqzMyzIqUQAI_wxAfkgvxieE8naUD1V6enk3KxPOea01riIpyBzs-xoy-hOmducqJ0xNu6VZiMgWCS",
+        job_description: "Inventory Retrieval for some vault",
+        action: JobAction::INVENTORY_RETRIEVAL,
+        archive_id: nil,
+        vault_arn: "arn:aws:glacier:us-west-2:280517293289:vaults/default_vault",
+        creation_date: Time.new(2016, 06, 15, 02, 00, 00, "-03:00"),
+        completed: false,
+        status_code: JobStatusCode::IN_PROGRESS,
+        status_message: nil,
+        archive_size_in_bytes: nil,
+        inventory_size_in_bytes: nil,
+        sns_topic: nil,
+        completion_date: nil,
+        sha256_tree_hash: nil,
+        archive_sha256_tree_hash: nil,
+        retrieval_byte_range: nil,
+        inventory_retrieval_parameters: {
+          format: JobFormat::JSON,
+          start_date: nil,
+          end_date: nil,
+          limit: nil,
+          marker: nil
+        })
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    get :list_jobs
+    assert_response :success
+    assert_template :list_jobs
+    assert_template layout: layout_default
+    assert_equal 1, assigns(:job_list).size
+    assert_select "h1", "List of Jobs"
+    assert_select "table thead tr th", 13
+    assert_select "table tbody tr", 1
+  end
+
+  test "should get list_jobs whithout jobs" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.list_jobs
       Array.new
     end
 
@@ -75,8 +117,11 @@ class GlacierControllerTest < ActionController::TestCase
     get :list_jobs
     assert_response :success
     assert_template :list_jobs
-    assert_template layout: "layouts/application"
-    assert_nil assigns(:vaults_list)
+    assert_template layout: layout_default
+    assert_equal 0, assigns(:job_list).size
+    assert_select "h1", "List of Jobs"
+    assert_select "table thead tr th", 13
+    assert_select "table tbody tr", 0
   end
 
   test "should get list_jobs with exception raised" do
@@ -100,7 +145,14 @@ class GlacierControllerTest < ActionController::TestCase
     get :new_vault
     assert_response :success
     assert_template :new_vault
-    assert_template layout: "layouts/application"
+    assert_template layout: layout_default
+    assert_select "h1", count: 1, text: "Create a new vault"
+    assert_select "a[class='btn btn-default'][href='/glacier/list_vaults']", count: 1, text: "Back"
+    assert_select "form[method=post][action='/glacier/create_vault']", 1
+    assert_select "input", count: 3 do
+      assert_select "input[type=text][name=vault_name][placeholder='Vault Name'][required][autofocus]", count: 1
+      assert_select "input[type=submit][value=Create]", count: 1
+    end
   end
 
   test "should get create_vault happy day" do

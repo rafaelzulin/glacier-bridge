@@ -5,33 +5,35 @@
 <div name="list_of_jobs">
   <table class="table">
     <thead>
-      <th>Description</th>
-      <th>Action</th>
-      <th>Archive ID</th>
-      <th>Vault ARN</th>
-      <th>Creation</th>
-      <th>Status</th>
-      <th>Arc Size</th>
-      <th>Inv Size</th>
-      <th>Completion</th>
-      <th>Format</th>
-      <th>Start</th>
-      <th>End</th>
-      <th>Options</th>
+      <tr>
+        <th>Description</th>
+        <th>Action</th>
+        <th>Archive ID</th>
+        <th>Vault ARN</th>
+        <th>Creation</th>
+        <th>Status</th>
+        <th>Arc Size</th>
+        <th>Inv Size</th>
+        <th>Completion</th>
+        <th>Format</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Options</th>
+      </tr>
     </thead>
     <tbody>
       <% @job_list.each do | job_description | %>
       <tr>
         <td><%= job_description.job_description %></td>
-        <td><%= job_description.action  %></td>
+        <td><%= job_description.action.value  %></td>
         <td><%= job_description.archive_id %></td>
         <td><%= job_description.vault_arn %></td>
         <td><%= job_description.creation_date %></td>
-        <td><%= job_description.status_code %></td>
+        <td><%= job_description.status_code.value %></td>
         <td><%= job_description.archive_size_in_bytes %></td>
         <td><%= job_description.inventory_size_in_bytes %></td>
         <td><%= job_description.completion_date %></td>
-        <td><%= job_description.inventory_retrieval_parameters.format %></td>
+        <td><%= job_description.inventory_retrieval_parameters.format.value %></td>
         <td><%= job_description.inventory_retrieval_parameters.start_date %></td>
         <td><%= job_description.inventory_retrieval_parameters.end_date %></td>
 

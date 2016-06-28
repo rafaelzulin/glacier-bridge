@@ -1,6 +1,8 @@
 class GlacierFacade
+  include Enums
+
   def initialize access_key_id, secret_access_key, region_value
-    @region = GlacierRegions.region_by_value region_value
+    @region = GlacierRegions.value_of region_value
 
     credentials = Aws::Credentials.new access_key_id, secret_access_key
     #TODO Add logger in the client
@@ -36,12 +38,12 @@ class GlacierFacade
        @glacier_client.list_jobs(account_id: '-', vault_name: describe_vault.vault_name).job_list.collect do | job_description |
         Bridge::Types::Glacier::JobDescription.new job_id: job_description.job_id,
           job_description: job_description.job_description,
-          action: job_description.action,
+          action: JobAction.value_of(job_description.action),
           archive_id: job_description.archive_id,
           vault_arn: job_description.vault_arn,
           creation_date: job_description.creation_date,
           completed: job_description.completed,
-          status_code: job_description.status_code,
+          status_code: JobStatusCode.value_of(job_description.status_code),
           status_message: job_description.status_message,
           archive_size_in_bytes: job_description.archive_size_in_bytes,
           inventory_size_in_bytes: job_description.inventory_size_in_bytes,
@@ -51,7 +53,7 @@ class GlacierFacade
           archive_sha256_tree_hash: job_description.archive_sha256_tree_hash,
           retrieval_byte_range: job_description.retrieval_byte_range,
           inventory_retrieval_parameters: {
-            format: job_description.inventory_retrieval_parameters.format,
+            format: JobFormat.value_of(job_description.inventory_retrieval_parameters.format),
             start_date: job_description.inventory_retrieval_parameters.start_date,
             end_date: job_description.inventory_retrieval_parameters.end_date,
             limit: job_description.inventory_retrieval_parameters.limit,
@@ -62,7 +64,6 @@ class GlacierFacade
   end
 
   def create_vault vault_name
-    #TODO Tratar retorno do ceate_vault da AWS
     @glacier_client.create_vault(vault_name: vault_name, account_id: '-')
   end
 
