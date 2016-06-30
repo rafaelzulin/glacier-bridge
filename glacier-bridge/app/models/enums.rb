@@ -30,7 +30,7 @@ module Enums
 		NORTH_VIRGINIA = self.new "US East (N. Virginia)", "us-east-1"
 		NORTH_CALIFORNIA = self.new "US West (N. California)", "us-west-1"
 		OREGON = self.new "US West (Oregon)", "us-west-2"
-		MUMBAI = self new "Asia Pacific (Mumbai)", "ap-south-1"
+		MUMBAI = self.new "Asia Pacific (Mumbai)", "ap-south-1"
 		SEOUL = self.new "Asia Pacific (Seoul)", "ap-northeast-2"
 		SYDNEY = self.new "Asia Pacific (Sydney)", "ap-southeast-2"
 		TOKYO = self.new "Asia Pacific (Tokyo)", "ap-northeast-1"
