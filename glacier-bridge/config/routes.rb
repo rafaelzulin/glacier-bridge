@@ -9,7 +9,7 @@ Rails.application.routes.draw do
   post 'glacier/create_vault' => 'glacier#create_vault', as: :glacier_create_vault
   delete 'glacier/destroy_vault/:id' => 'glacier#destroy_vault', as: :glacier_destroy_vault
   get 'glacier/inventory_retrieval/:id' => 'glacier#inventory_retrieval', as: :glacier_inventory_retrieval
-  get 'glacier/inventory_download/:id' => 'glacier#inventory_download', as: :glacier_inventory_download
+  get 'glacier/inventory_download/:id/vault_name/:vault_name' => 'glacier#inventory_download', as: :glacier_inventory_download
   get 'glacier/new_archive'
   post 'glacier/upload_archive'
   get 'glacier/list_jobs'

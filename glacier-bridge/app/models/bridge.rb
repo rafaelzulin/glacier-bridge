@@ -15,7 +15,7 @@ module Bridge
       end
 
       class JobDescription
-        attr_reader :job_id, :job_description, :action, :archive_id, :vault_arn, :creation_date, :completed, :status_code, :status_message, :archive_size_in_bytes, :inventory_size_in_bytes, :sns_topic, :completion_date, :sha256_tree_hash, :archive_sha256_tree_hash, :retrieval_byte_range, :inventory_retrieval_parameters
+        attr_reader :job_id, :job_description, :action, :archive_id, :vault_arn, :vault_name, :creation_date, :completed, :status_code, :status_message, :archive_size_in_bytes, :inventory_size_in_bytes, :sns_topic, :completion_date, :sha256_tree_hash, :archive_sha256_tree_hash, :retrieval_byte_range, :inventory_retrieval_parameters
 
         def initialize hash
           @job_id = hash[:job_id]
@@ -23,6 +23,7 @@ module Bridge
           @action = hash[:action]
           @archive_id = hash[:archive_id]
           @vault_arn = hash[:vault_arn]
+          @vault_name = hash[:vault_name]
           @creation_date = hash[:creation_date]
           @completed = hash[:completed]
           @status_code = hash[:status_code]

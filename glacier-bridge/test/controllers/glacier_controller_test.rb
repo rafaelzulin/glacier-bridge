@@ -73,6 +73,7 @@ class GlacierControllerTest < ActionController::TestCase
         action: JobAction::INVENTORY_RETRIEVAL,
         archive_id: nil,
         vault_arn: "arn:aws:glacier:us-west-2:280517293289:vaults/default_vault",
+        vault_name: "default_vault",
         creation_date: Time.new(2016, 06, 15, 02, 00, 00, "-03:00"),
         completed: false,
         status_code: JobStatusCode::IN_PROGRESS,
@@ -171,10 +172,6 @@ class GlacierControllerTest < ActionController::TestCase
 
   test "should get create_vault without vault name" do
     glacier_facade = glacier_facade_default
-
-    def glacier_facade.create_vault vault_name
-    end
-
     session_store request.session_options[:id], :glacier_facade, glacier_facade
 
     post :create_vault
@@ -197,7 +194,7 @@ class GlacierControllerTest < ActionController::TestCase
     assert_redirected_to "/500.html"
   end
 
-  test "should get destroy_vault happy day" do
+  test "should delete destroy_vault happy day" do
     glacier_facade = glacier_facade_default
 
     def glacier_facade.delete_vault vault_name
@@ -208,7 +205,21 @@ class GlacierControllerTest < ActionController::TestCase
     delete :destroy_vault, id: "vault_test"
     assert_response :redirect
     assert_redirected_to glacier_list_vaults_path
-    assert_equal "Vault was successfully deleted", flash[:notice]
+    assert_equal "Vault was successfully deleted", flash[:success]
+  end
+
+  test "should delete destroy_vault with exception raised" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.delete_vault vault_name
+      raise Bridge::Errors::AwsException, "Error on the request"
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    delete :destroy_vault, id: "vault_test"
+    assert_response :redirect
+    assert_redirected_to "/500.html"
   end
 
   test "should get inventory_retrieval happy day" do
@@ -222,20 +233,78 @@ class GlacierControllerTest < ActionController::TestCase
     delete :inventory_retrieval, id: "vault_test"
     assert_response :redirect
     assert_redirected_to glacier_list_vaults_path
-    assert_equal "Job for inventory retrieval was successfully created", flash[:notice]
+    assert_equal "Job for inventory retrieval was successfully created", flash[:success]
+  end
+
+  test "should get inventory_retrieval with exception raised" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.inventory_retrieval vault_name
+      raise Bridge::Errors::AwsException, "Error on the request"
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    delete :inventory_retrieval, id: "vault_test"
+    assert_response :redirect
+    assert_redirected_to "/500.html"
   end
 
   test "should get inventory_download happy day" do
     glacier_facade = glacier_facade_default
 
     def glacier_facade.inventory_download job_id, vault_name
-      output = Aws::Glacier::Types::GetJobOutputOutput.new
+      '{' +
+      '  "VaultARN": "arn:aws:glacier:us-west-2:280517293289:vaults/VaultName",' +
+      '  "InventoryDate": "2016-06-18T12:31:15Z",' +
+      '  "ArchiveList": [' +
+      '    {' +
+      '      "ArchiveId": "GdEgO_6aPKC9ovhOfewqSNKTOZuDimGTJS8iPfl_Da67m8E015sOWVKveDS8r66cxM7_LMGLsKBV6vUCPOmk-ue1ojaopc2HUaSmLLh9XuNiboULwLBn-eQdTdR0Wz_mHO1ONpeRnA",'+
+      '      "ArchiveDescription": "teste",' +
+      '      "CreationDate": "2016-06-17T20:02:26Z",' +
+      '      "Size": 58,' +
+      '      "SHA256TreeHash": "94d0a49c47391b5250a7f81f5f26e7ac4873bdd1f3666fce47e18d116a00f083"' +
+      '    }' +
+      '  ]' +
+      '}'
     end
 
     session_store request.session_options[:id], :glacier_facade, glacier_facade
 
-    delete :inventory_download, id: job_id_default, vault: "arn:aws:glacier:us-west-2:280517293289:vaults/vault_test"
+    get :inventory_download, id: job_id_default, vault_name: "VaultName"
     assert_response :success
+    assert_template nil
+    assert_equal "application/json", response.content_type
+    assert_equal invetory_default, (response.stream.each { |text| text })[0]
+  end
+
+  test "should get inventory_download with nil response" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.inventory_download job_id, vault_name
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    get :inventory_download, id: job_id_default, vault_name: "VaultName"
+    assert_response :success
+    assert_template nil
+    assert_equal "application/json", response.content_type
+    assert_equal String.new, (response.stream.each { |text| text })[0]
+  end
+
+  test "should get inventory_download with exception raised" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.inventory_download job_id, vault_name
+      raise Bridge::Errors::AwsException, "Error on the request"
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    get :inventory_download, id: job_id_default, vault_name: "vaultTest"
+    assert_response :redirect
+    assert_redirected_to "/500.html"
   end
 
   test "should get new_archive happy day" do
@@ -269,11 +338,27 @@ class GlacierControllerTest < ActionController::TestCase
   end
 
   private
-     def glacier_facade_default
+    def glacier_facade_default
        GlacierFacade.new access_key_id_default, secret_access_key_default, region_default
      end
 
-     def access_configuration_default
+    def invetory_default
+      '{' +
+      '  "VaultARN": "arn:aws:glacier:us-west-2:280517293289:vaults/VaultName",' +
+      '  "InventoryDate": "2016-06-18T12:31:15Z",' +
+      '  "ArchiveList": [' +
+      '    {' +
+      '      "ArchiveId": "GdEgO_6aPKC9ovhOfewqSNKTOZuDimGTJS8iPfl_Da67m8E015sOWVKveDS8r66cxM7_LMGLsKBV6vUCPOmk-ue1ojaopc2HUaSmLLh9XuNiboULwLBn-eQdTdR0Wz_mHO1ONpeRnA",'+
+      '      "ArchiveDescription": "teste",' +
+      '      "CreationDate": "2016-06-17T20:02:26Z",' +
+      '      "Size": 58,' +
+      '      "SHA256TreeHash": "94d0a49c47391b5250a7f81f5f26e7ac4873bdd1f3666fce47e18d116a00f083"' +
+      '    }' +
+      '  ]' +
+      '}'
+    end
+
+    def access_configuration_default
        glacier_facade = glacier_facade_default
        def glacier_facade.list_vaults
          output = Aws::Glacier::Types::DescribeVaultOutput.new
@@ -288,11 +373,11 @@ class GlacierControllerTest < ActionController::TestCase
        return glacier_facade
      end
 
-     def session_store session_id, key, value
-       Session.instance.store session_id, key, value
-     end
+    def session_store session_id, key, value
+      Session.instance.store session_id, key, value
+    end
 
-     def job_id_default
-       "qoeDCFVBFhtSn4Y14LF9fb_n_oO-yJ33pXRFxCzQJK6dZ-Ov892Dk0RgESCduTn-ChVAci_VD0U1nSiGvEPZT509tVM5"
-     end
+    def job_id_default
+      "qoeDCFVBFhtSn4Y14LF9fb_n_oO-yJ33pXRFxCzQJK6dZ-Ov892Dk0RgESCduTn-ChVAci_VD0U1nSiGvEPZT509tVM5"
+    end
 end

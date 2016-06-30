@@ -41,6 +41,7 @@ class GlacierFacade
           action: JobAction.value_of(job_description.action),
           archive_id: job_description.archive_id,
           vault_arn: job_description.vault_arn,
+          vault_name: extract_vault_name(job_description.vault_arn),
           creation_date: job_description.creation_date,
           completed: job_description.completed,
           status_code: JobStatusCode.value_of(job_description.status_code),
@@ -91,11 +92,15 @@ class GlacierFacade
   end
 
   def inventory_download job_id, vault_name
-    @glacier_client.get_job_output({
+    body_io = @glacier_client.get_job_output({
       account_id: '-',
       vault_name: vault_name,
       job_id: job_id
-      })
+      }).body
+
+    str_return = String.new
+    body_io.each { |line| str_return = str_return + line } unless body_io.nil?
+    return str_return
   end
 
   def upload_archive vault_name, archive_description, file
@@ -105,5 +110,10 @@ class GlacierFacade
       archive_description: archive_description,
       body: file.tempfile
       })
+  end
+
+  private
+  def extract_vault_name vault_arn
+    vault_arn[vault_arn.index('/') + 1, vault_arn.length]
   end
 end

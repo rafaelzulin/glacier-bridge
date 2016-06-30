@@ -30,7 +30,7 @@ class GlacierController < ApplicationController
       glacier_facade.create_vault parameters[:vault_name]
       redirect_to glacier_list_vaults_path, flash: { success: "New vault was successfully created" }
     rescue ActionController::ParameterMissing => e
-      redirect_to glacier_new_vault_path, flash: { error: e.message }
+      redirect_to glacier_new_vault_path, flash: {error: e.message }
     end
   end
 
@@ -38,11 +38,11 @@ class GlacierController < ApplicationController
   def destroy_vault
     puts "#{Date.today} [INFO] list_vaults"
     begin
-      #TODO Tratar parâmetro de entrada
-      glacier_facade.delete_vault params["id"]
-      redirect_to glacier_list_vaults_path, notice: "Vault was successfully deleted"
-    rescue Exception => e
-      error_handler e
+      parameters = validate_params! :id
+      glacier_facade.delete_vault parameters[:id]
+      redirect_to glacier_list_vaults_path, flash: { success: "Vault was successfully deleted" }
+    rescue ActionController::ParameterMissing => e
+      redirect_to glacier_list_vaults_path, flash: { error: e.message }
     end
   end
 
@@ -50,13 +50,11 @@ class GlacierController < ApplicationController
   def inventory_retrieval
     puts "#{Date.today} [INFO] inventory_retrieval"
     begin
-      #TODO Tratar parametro
-      glacier_facade.inventory_retrieval params["id"]
-      redirect_to glacier_list_vaults_path, notice: "Job for inventory retrieval was successfully created"
-    rescue Aws::Glacier::Errors::ResourceNotFoundException => e
-      redirect_to glacier_list_vaults_path, notice: e.message
-    rescue Exception => e
-      error_handler e
+      parameters = validate_params! :id
+      glacier_facade.inventory_retrieval parameters[:id]
+      redirect_to glacier_list_vaults_path, flash: { success: "Job for inventory retrieval was successfully created" }
+    rescue ActionController::ParameterMissing => e
+      redirect_to glacier_list_vaults_path, flash: { error: e.message }
     end
   end
 
@@ -64,19 +62,11 @@ class GlacierController < ApplicationController
   def inventory_download
     puts "#{Date.today} [INFO] inventory_download"
     begin
-      #TODO Tratar parâmetros
-      job_id = params["id"]
-      vault_arn = params["vault"]
-      vault_name = vault_arn[vault_arn.index('/') + 1, vault_arn.length]
-
-      resp = glacier_facade.inventory_download job_id, vault_name
-
-      retorno = ""
-
-      resp.body.each { |line| retorno = retorno + line } unless resp.body.nil?
-      send_data retorno, filename: "inventory.txt", type: "plain/text"
-    rescue Aws::Glacier::Errors::BadRequest => e
-      error_handler e
+      parameters = validate_params! :id, :vault_name
+      body_io = glacier_facade.inventory_download parameters[:id], parameters[:vault_name]
+      send_data body_io, filename: "inventory_#{parameters[:vault_name]}.txt", type: "application/json"
+    rescue ActionController::ParameterMissing => e
+      redirect_to glacier_list_jobs_path, flash: { error: e.message }
     end
   end
 
