@@ -1,5 +1,5 @@
-<%= link_to "Back", :back, class: "btn btn-default" %>
-<h1>Create a new archive</h1>
+<%= link_to "Back", glacier_list_vaults_path, class: "btn btn-default" %>
+<h1 class="h1">Upload Archive</h1>
 <div name="form_new_archive">
   <%= form_tag glacier_upload_archive_path, method: :post, multipart: true do %>
     <%= label_tag :archive_description, "Archive Description", class: "sr-only" %><br />

@@ -312,6 +312,9 @@ class GlacierControllerTest < ActionController::TestCase
 
     def glacier_facade.list_vaults
       Array.new
+        .push(Bridge::Types::Glacier::DescribeVaultOutput.new vault_name: "Vault1")
+        .push(Bridge::Types::Glacier::DescribeVaultOutput.new vault_name: "Vault2")
+        .push(Bridge::Types::Glacier::DescribeVaultOutput.new vault_name: "Vault3")
     end
 
     session_store request.session_options[:id], :glacier_facade, glacier_facade
@@ -319,8 +322,28 @@ class GlacierControllerTest < ActionController::TestCase
     get :new_archive
     assert_response :success
     assert_template :new_archive
-    assert_template layout: "layouts/application"
-    assert_equal Array.new, assigns(:list_names)
+    assert_template layout: layout_default
+    assert_equal ["Vault1", "Vault2", "Vault3"], assigns(:list_names)
+    assert_select "h1", count: 1, text: "Upload Archive"
+    assert_select "a[class='btn btn-default'][href='/glacier/list_vaults']", count: 1, text: "Back"
+    assert_select "form[method=post][action='/glacier/upload_archive'][enctype='multipart/form-data']", count: 1
+
+    assert_select "form", count: 1 do
+      assert_select "input", count: 4 do
+        assert_select "input[type=text][name=archive_description][placeholder='Archive Description'][required][autofocus]", count: 1
+        assert_select "input[type=text][name=archive_description][placeholder='Archive Description'][required][autofocus]", count: 1
+        assert_select "input[type=submit][value=Upload][class='btn btn-lg btn-primary']", count: 1
+        assert_select "input[type='file'][name='file'][id='file']"
+      end
+      assert_select "select[name='vault_name'][id='vault_name']", count: 1 do
+        assert_select "option", count: 4 do
+          assert_select "option", text: "Select a Vault", count: 1
+          assert_select "option[value='Vault1']", text: "Vault1", count: 1
+          assert_select "option[value='Vault2']", text: "Vault2", count: 1
+          assert_select "option[value='Vault3']", text: "Vault3", count: 1
+        end
+      end
+    end
   end
 
   test "should get upload_archive happy day" do
@@ -331,10 +354,38 @@ class GlacierControllerTest < ActionController::TestCase
 
     session_store request.session_options[:id], :glacier_facade, glacier_facade
 
-    post :upload_archive, vault_name: "vault_test", archive_description: "archive description", file: String.new("teste")
+    post :upload_archive, vault_name: "VaultName", archive_description: "archive description", file: String.new("teste")
     assert_response :redirect
     assert_redirected_to glacier_new_archive_path
-    assert_equal "Archive was successfully uploaded", flash[:notice]
+    assert_equal "Archive was successfully uploaded", flash[:success]
+  end
+
+  test "should get upload_archive without parameters" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.upload_archive vault_name, archive_description, file
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    post :upload_archive, vault_name: nil, archive_description: "archive description", file: String.new("teste")
+    assert_response :redirect
+    assert_redirected_to glacier_new_archive_path
+    assert_equal "param is missing or the value is empty: Required parameters are missing: vault_name", flash[:error]
+  end
+
+  test "should get upload_archive with exception raised" do
+    glacier_facade = glacier_facade_default
+
+    def glacier_facade.upload_archive vault_name, archive_description, file
+      raise Bridge::Errors::AwsException, "Error on the request"
+    end
+
+    session_store request.session_options[:id], :glacier_facade, glacier_facade
+
+    post :upload_archive, vault_name: "VaultName", archive_description: "archive description", file: String.new("teste")
+    assert_response :redirect
+    assert_redirected_to "/500.html"
   end
 
   private

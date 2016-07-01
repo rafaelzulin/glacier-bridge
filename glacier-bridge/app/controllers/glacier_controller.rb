@@ -7,13 +7,11 @@ class GlacierController < ApplicationController
   #TODO Use logging feature properly
   #get 'glacier/list_vaults'
   def list_vaults
-    puts "#{Time.now} [INFO] list_vaults"
     @vaults_list = glacier_facade.list_vaults
   end
 
   #get 'glacier/list_jobs'
   def list_jobs
-    puts "#{Date.today} [INFO] list_jobs"
     @job_list = glacier_facade.list_jobs
   end
 
@@ -23,8 +21,6 @@ class GlacierController < ApplicationController
 
   #post 'glacier/create_vault/:id', as: :glacier_create_vault
   def create_vault
-    puts "#{Date.today} [INFO] create_vault"
-
     begin
       parameters = validate_params! :vault_name
       glacier_facade.create_vault parameters[:vault_name]
@@ -36,7 +32,6 @@ class GlacierController < ApplicationController
 
   #delete 'glacier/destroy_vault/:id' => 'glacier#destroy_vault', as: :glacier_destroy_vault
   def destroy_vault
-    puts "#{Date.today} [INFO] list_vaults"
     begin
       parameters = validate_params! :id
       glacier_facade.delete_vault parameters[:id]
@@ -48,7 +43,6 @@ class GlacierController < ApplicationController
 
   #get 'glacier/inventory_retrieval/:id' => 'glacier#inventory_retrieval', as: :glacier_inventory_retrieval
   def inventory_retrieval
-    puts "#{Date.today} [INFO] inventory_retrieval"
     begin
       parameters = validate_params! :id
       glacier_facade.inventory_retrieval parameters[:id]
@@ -60,7 +54,6 @@ class GlacierController < ApplicationController
 
   #get 'glacier/inventory_download/:id' => 'glacier#inventory_download', as: :glacier_inventory_download
   def inventory_download
-    puts "#{Date.today} [INFO] inventory_download"
     begin
       parameters = validate_params! :id, :vault_name
       body_io = glacier_facade.inventory_download parameters[:id], parameters[:vault_name]
@@ -72,38 +65,17 @@ class GlacierController < ApplicationController
 
   #get 'glacier/new_archive'
   def new_archive
-    puts "#{Date.today} [INFO] new_archive"
-    begin
-      @list_names = Array.new
-      glacier_facade.list_vaults.each do |vault|
-        @list_names.push vault.vault_name
-      end
-    rescue Exception => e
-      error_handler e
-    end
+    @list_names = glacier_facade.list_vaults.collect { |vault| vault.vault_name }
   end
 
   #post 'glacier/upload_archive'
   def upload_archive
-    puts "#{Date.today} [INFO] upload_archive"
     begin
-      #TODO Tratar parâmetros
-      params.require(:archive_description)
-      params.require(:vault_name)
-      params.require(:file)
-
-      archive_description = params[:archive_description]
-      vault_name = params[:vault_name]
-      file = params[:file]
-
-      glacier_facade.upload_archive archive_description, vault_name, file
-
-      redirect_to glacier_new_archive_path, notice: "Archive was successfully uploaded"
+      parameters = validate_params! :archive_description, :vault_name, :file
+      glacier_facade.upload_archive parameters[:archive_description], parameters[:vault_name], parameters[:file]
+      redirect_to glacier_new_archive_path, flash: {success: "Archive was successfully uploaded" }
     rescue ActionController::ParameterMissing => e
-      puts e.message
-      redirect_to :back, notice: "A parameter is missing"
-    rescue Exception => e
-      error_handler e
+      redirect_to glacier_new_archive_path, flash: { error: e.message }
     end
   end
 
