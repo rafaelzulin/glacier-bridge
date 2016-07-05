@@ -65,7 +65,7 @@ class GlacierController < ApplicationController
 
   #get 'glacier/new_archive'
   def new_archive
-    @list_names = glacier_facade.list_vaults.collect { |vault| vault.vault_name }
+    @list_names = glacier_facade.list_vaults.collect { |vault| vault[:vault_name] }
   end
 
   #post 'glacier/upload_archive'
@@ -92,8 +92,6 @@ private
 
   #before_filter
   def validate_credentials
-    puts "#{Date.today} [INFO] validate_credentials"
-
     if glacier_facade.nil?
       redirect_to welcome_index_path
     else

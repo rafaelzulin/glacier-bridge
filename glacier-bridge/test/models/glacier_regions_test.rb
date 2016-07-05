@@ -13,7 +13,7 @@ class GlacierRegionsTest < ActiveSupport::TestCase
 
   test "Validates methods wich returns all regions as an array" do
     regions = GlacierRegions.values
-    assert_equal 8, regions.length, "Number of regions are incorrect"
+    assert_equal 9, regions.length, "Number of regions are incorrect"
     regions.each do |region|
       assert_kind_of GlacierRegions, region, "The type of the object should be GlacierRegions"
     end

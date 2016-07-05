@@ -24,21 +24,22 @@
     <tbody>
       <% @job_list.each do | job_description | %>
       <tr>
-        <td><%= job_description.job_description %></td>
-        <td><%= job_description.action.value  %></td>
-        <td><%= job_description.archive_id %></td>
-        <td><%= job_description.vault_name %></td>
-        <td><%= job_description.creation_date %></td>
-        <td><%= job_description.status_code.value %></td>
-        <td><%= job_description.archive_size_in_bytes %></td>
-        <td><%= job_description.inventory_size_in_bytes %></td>
-        <td><%= job_description.completion_date %></td>
-        <td><%= job_description.inventory_retrieval_parameters.format.value %></td>
-        <td><%= job_description.inventory_retrieval_parameters.start_date %></td>
-        <td><%= job_description.inventory_retrieval_parameters.end_date %></td>
+        <td><%= job_description[:job_description] %></td>
+        <td><%= job_description[:action].value  %></td>
+        <td><%= job_description[:archive_id] %></td>
+        <td><%= job_description[:vault_name] %></td>
+        <td><%= job_description[:creation_date] %></td>
+        <td><%= job_description[:status_code].value %></td>
+        <td><%= job_description[:archive_size_in_bytes] %></td>
+        <td><%= job_description[:inventory_size_in_bytes] %></td>
+        <td><%= job_description[:completion_date] %></td>
+
+        <td><%= job_description[:inventory_retrieval_parameters][:format].value %></td>
+        <td><%= job_description[:inventory_retrieval_parameters][:start_date] %></td>
+        <td><%= job_description[:inventory_retrieval_parameters][:end_date] %></td>
 
         <td><%= link_to "",
-                  glacier_inventory_download_path(id: job_description.job_id, vault_name: job_description.vault_name),
+                  glacier_inventory_download_path(id: job_description[:job_id], vault_name: job_description[:vault_name]),
                   { method: "get",
                     class: "glyphicon glyphicon-download",
                     title: "Download",

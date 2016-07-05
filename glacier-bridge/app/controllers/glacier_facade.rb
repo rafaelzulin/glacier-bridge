@@ -17,12 +17,14 @@ class GlacierFacade
   def list_vaults
     begin
       @glacier_client.list_vaults.vault_list.collect do | describe_vault |
-        Bridge::Types::Glacier::DescribeVaultOutput.new vault_name: describe_vault.vault_name,
+        {
+          vault_name: describe_vault.vault_name,
           vault_arn: describe_vault.vault_arn,
           size_in_bytes: describe_vault.size_in_bytes,
           number_of_archives: describe_vault.number_of_archives,
           creation_date: describe_vault.creation_date,
           last_inventory_date: describe_vault.last_inventory_date
+        }
       end
     rescue Aws::Glacier::Errors::ServiceError => e
       raise Bridge::Errors::AwsException, e.message
@@ -35,30 +37,32 @@ class GlacierFacade
     #TODO Colocar filtro por status
     begin
       (list_vaults.collect do | describe_vault |
-         @glacier_client.list_jobs(account_id: '-', vault_name: describe_vault.vault_name).job_list.collect do | job_description |
-          Bridge::Types::Glacier::JobDescription.new job_id: job_description.job_id,
-            job_description: job_description.job_description,
-            action: JobAction.value_of(job_description.action),
-            archive_id: job_description.archive_id,
-            vault_arn: job_description.vault_arn,
-            vault_name: extract_vault_name(job_description.vault_arn),
-            creation_date: job_description.creation_date,
-            completed: job_description.completed,
-            status_code: JobStatusCode.value_of(job_description.status_code),
-            status_message: job_description.status_message,
-            archive_size_in_bytes: job_description.archive_size_in_bytes,
-            inventory_size_in_bytes: job_description.inventory_size_in_bytes,
-            sns_topic: job_description.sns_topic,
-            completion_date: job_description.completion_date,
-            sha256_tree_hash: job_description.sha256_tree_hash,
-            archive_sha256_tree_hash: job_description.archive_sha256_tree_hash,
-            retrieval_byte_range: job_description.retrieval_byte_range,
-            inventory_retrieval_parameters: {
-              format: JobFormat.value_of(job_description.inventory_retrieval_parameters.format),
-              start_date: job_description.inventory_retrieval_parameters.start_date,
-              end_date: job_description.inventory_retrieval_parameters.end_date,
-              limit: job_description.inventory_retrieval_parameters.limit,
-              marker: job_description.inventory_retrieval_parameters.marker
+         @glacier_client.list_jobs(account_id: '-', vault_name: describe_vault[:vault_name]).job_list.collect do | job_description |
+           {
+              job_id: job_description.job_id,
+              job_description: job_description.job_description,
+              action: JobAction.value_of(job_description.action),
+              archive_id: job_description.archive_id,
+              vault_arn: job_description.vault_arn,
+              vault_name: extract_vault_name(job_description.vault_arn),
+              creation_date: job_description.creation_date,
+              completed: job_description.completed,
+              status_code: JobStatusCode.value_of(job_description.status_code),
+              status_message: job_description.status_message,
+              archive_size_in_bytes: job_description.archive_size_in_bytes,
+              inventory_size_in_bytes: job_description.inventory_size_in_bytes,
+              sns_topic: job_description.sns_topic,
+              completion_date: job_description.completion_date,
+              sha256_tree_hash: job_description.sha256_tree_hash,
+              archive_sha256_tree_hash: job_description.archive_sha256_tree_hash,
+              retrieval_byte_range: job_description.retrieval_byte_range,
+              inventory_retrieval_parameters: {
+                format: JobFormat.value_of(job_description.inventory_retrieval_parameters.format),
+                start_date: job_description.inventory_retrieval_parameters.start_date,
+                end_date: job_description.inventory_retrieval_parameters.end_date,
+                limit: job_description.inventory_retrieval_parameters.limit,
+                marker: job_description.inventory_retrieval_parameters.marker
+              }
             }
         end
       end).flatten 1

@@ -10,13 +10,14 @@ class GlacierControllerTest < ActionController::TestCase
     glacier_facade = glacier_facade_default
 
     def glacier_facade.list_vaults
-      Array.new.push Bridge::Types::Glacier::DescribeVaultOutput.new(vault_name: "vault_test",
+      Array.new.push({
+        vault_name: "vault_test",
         vault_arn: "arn:aws:glacier:us-west-2:280517293289:vaults/vault_test",
         size_in_bytes: 1024,
         number_of_archives: 2,
         creation_date: Time.new(2016, 06, 15, 02, 00, 00, "-03:00"),
         last_inventory_date: Time.new(2016, 06, 20, 17, 15, 00, "-03:00")
-      )
+      })
     end
 
     session_store request.session_options[:id], :glacier_facade, glacier_facade
@@ -40,7 +41,7 @@ class GlacierControllerTest < ActionController::TestCase
         assert_select "th", text: "Archives"
         assert_select "th", text: "Created"
         assert_select "th", text: "Last Inventory Date"
-        assert_select "th[colspan=2]", text: "Options"
+        assert_select "th[colspan='2']", text: "Options"
       end
     end
     assert_select "table tbody tr", count: 1 do |element|
@@ -51,7 +52,7 @@ class GlacierControllerTest < ActionController::TestCase
         assert_select "td", text: "2016-06-15 02:00:00 -0300", count: 1
         assert_select "td", text: "2016-06-20 17:15:00 -0300", count: 1
         assert_select "td a[href='/glacier/inventory_retrieval/vault_test'][data-method=get][data-confirm='Are you sure you want to start a inventory retrieval for the vault \"vault_test\"?']"
-        assert_select "td a[href=/glacier/destroy_vault/vault_test][data-method=delete][data-confirm='Are you sure you want to destroy the vault \"vault_test\"?']"
+        assert_select "td a[href='/glacier/destroy_vault/vault_test'][data-method=delete][data-confirm='Are you sure you want to destroy the vault \"vault_test\"?']"
       end
     end
   end
@@ -93,7 +94,8 @@ class GlacierControllerTest < ActionController::TestCase
     glacier_facade = glacier_facade_default
 
     def glacier_facade.list_jobs
-      Array.new.push Bridge::Types::Glacier::JobDescription.new(job_id: "6C-oiL2VsIWbyTLqzMyzIqUQAI_wxAfkgvxieE8naUD1V6enk3KxPOea01riIpyBzs-xoy-hOmducqJ0xNu6VZiMgWCS",
+      Array.new.push({
+        job_id: "6C-oiL2VsIWbyTLqzMyzIqUQAI_wxAfkgvxieE8naUD1V6enk3KxPOea01riIpyBzs-xoy-hOmducqJ0xNu6VZiMgWCS",
         job_description: "Inventory Retrieval for some vault",
         action: JobAction::INVENTORY_RETRIEVAL,
         archive_id: nil,
@@ -116,7 +118,8 @@ class GlacierControllerTest < ActionController::TestCase
           end_date: nil,
           limit: nil,
           marker: nil
-        })
+        }
+      })
     end
 
     session_store request.session_options[:id], :glacier_facade, glacier_facade
@@ -337,9 +340,9 @@ class GlacierControllerTest < ActionController::TestCase
 
     def glacier_facade.list_vaults
       Array.new
-        .push(Bridge::Types::Glacier::DescribeVaultOutput.new vault_name: "Vault1")
-        .push(Bridge::Types::Glacier::DescribeVaultOutput.new vault_name: "Vault2")
-        .push(Bridge::Types::Glacier::DescribeVaultOutput.new vault_name: "Vault3")
+        .push(vault_name: "Vault1")
+        .push(vault_name: "Vault2")
+        .push(vault_name: "Vault3")
     end
 
     session_store request.session_options[:id], :glacier_facade, glacier_facade
