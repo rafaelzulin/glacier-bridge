@@ -27,8 +27,33 @@ class GlacierControllerTest < ActionController::TestCase
     assert_template layout: layout_default
     assert_equal 1, assigns(:vaults_list).size
     assert_select "h1", "List of vaults"
-    assert_select "table thead tr", 1
-    assert_select "table tbody tr", 1
+    assert_select "div[name=vault_menu] a", count: 3 do
+        assert_select "a[href='/glacier/new_vault']", count: 1, text: "Create Vault"
+        assert_select "a[href='/glacier/new_archive']", count: 1, text: "Upload Archive"
+        assert_select "a[href='/glacier/list_jobs']", count: 1, text: "Jobs"
+    end
+    assert_select "table", 1
+    assert_select "table thead tr", count: 1 do
+      assert_select "th", count: 6 do
+        assert_select "th", text: "Vault Name"
+        assert_select "th", text: "Size"
+        assert_select "th", text: "Archives"
+        assert_select "th", text: "Created"
+        assert_select "th", text: "Last Inventory Date"
+        assert_select "th[colspan=2]", text: "Options"
+      end
+    end
+    assert_select "table tbody tr", count: 1 do |element|
+      assert_select "td", count: 7 do
+        assert_select "td", text: "vault_test", count: 1
+        assert_select "td", text: "1024", count: 1
+        assert_select "td", text: "2", count: 1
+        assert_select "td", text: "2016-06-15 02:00:00 -0300", count: 1
+        assert_select "td", text: "2016-06-20 17:15:00 -0300", count: 1
+        assert_select "td a[href='/glacier/inventory_retrieval/vault_test'][data-method=get][data-confirm='Are you sure you want to start a inventory retrieval for the vault \"vault_test\"?']"
+        assert_select "td a[href=/glacier/destroy_vault/vault_test][data-method=delete][data-confirm='Are you sure you want to destroy the vault \"vault_test\"?']"
+      end
+    end
   end
 
   test "should get list_vaults without vaults" do
